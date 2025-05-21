@@ -29,15 +29,15 @@ class AzureBlobStorage:
         """
         
         try:
-            logger.info('checking resource...')
+            logger.info("checking if file exists...")
             
             blob_client = self.blob_service_client.get_blob_client(container=container_name, blob=file_path)
             blob_client.get_blob_properties()
             
-            logger.info('Resource is available!')
+            logger.info('File exists!')
             return True
         except ResourceNotFoundError as e:
-            logger.error('Resource not available!')
+            logger.error('File does not exists!')
             raise CustomException(e)
         except Exception as e:
             logger.error('Some error occured in function "is_file_available" in azure_storage.py!')
@@ -58,14 +58,15 @@ class AzureBlobStorage:
             logger.info(f'Uploading file from {file_path} to {file_blob_path} in {container_name} blob storage container on Azure...')
             
             blob_client = self.blob_service_client.get_blob_client(container=container_name, blob=file_blob_path)
-            
+                        
             blob_client.upload_blob(data=open(file_path, 'rb'), overwrite=True)
             logger.info('file uploaded Successfully!')
             
             if remove:
                 os.remove(file_path)
-                logging.info(f'Local file {file_path} deleted after upload!')
-            
+                logger.info(f'Local file {file_path} deleted after upload!')
+                
+            return
         except ServiceRequestError as e:
             logger.error('There is a network error os DNS faliure, client cannot reach the Azure service.')
             raise CustomException(e)
@@ -90,7 +91,7 @@ class AzureBlobStorage:
             just downloads the file in specified path.
         """
         try:
-            logger.info('Downloading Model...')
+            logger.info('Downloading file...')
             
             file_status = self.is_file_available(container_name=container_name, file_path=file_blob_path)
             if not file_status:
@@ -100,9 +101,16 @@ class AzureBlobStorage:
             
             blob_data = blob_client.download_blob().readall()
             
-            with open(file_save_path, 'wb') as model_file:
-                pickle.dump(blob_data, model_file)
-                
+            save_dir = os.path.dirname(file_save_path)
+            # print('save_dir: ', save_dir)
+            # print('file_name: ', os.path.basename(file_save_path))
+            os.makedirs(save_dir, exist_ok=True)
+            
+            with open(file_save_path, 'wb') as file:
+                file.write(blob_data)
+            
+            logger.info('File downloaded Successfully')
+            
         except ResourceNotFoundError as e:
             logger.error('ResourceError! Blob not found in container.')
             raise CustomException(e)

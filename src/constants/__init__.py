@@ -15,14 +15,18 @@ LOG_FILENAME = f"{datetime.now().strftime('%Y-%m-%d--%H-%M-%S')}.log"
 MAX_LOG_SIZE=5*1024*1024
 BACKUP_COUNT=3
 
-# Model
+
+
+# Model and files
 MODEL_DIR = os.path.join(ROOT_DIR, 'models')
 MODEL_NAME = 'model.pkl'
 MODEL_BLOB_NAME = 'model.pkl'
 MODEL_BLOB_DIR = 'models'
-MODEL_BLOB_CONTAINER = 'capstonemodel'
+DATA_BLOB_DIR = 'data'
+DATA_FILE_NAME = 'data.csv' # IMDB.csv
 
 # Azure
+BLOB_CONTAINER = 'capstoneprojcunt'
 BLOB_STORAGE_REGION='eastasia'
 BLOB_STORAGE_INSTANCE_NAME=os.getenv('BLOB_STORAGE_INSTANCE_NAME')
 AZURE_TENANT_ID=os.getenv('AZURE_TENANT_ID')
@@ -31,4 +35,10 @@ AZURE_CLIENT_SECRET=os.getenv('AZURE_CLIENT_SECRET')
 AZURE_STORAGE_ACCOUNT_URL=os.getenv('AZURE_STORAGE_ACCOUNT_URL')
 SERVICE_PRINCIPLE_ID=os.getenv('SERVICE_PRINCIPLE_ID')
 
+# pipeline
+PIPELINE_NAME: str = ''
+ARTIFACT_DIR: str = 'artifact'
 
+# Data Ingestion
+DATA_INGESTION_DIR: str = 'data_ingestion'
+DATA_INGESTION_RAW_DIR: str = 'raw_data'

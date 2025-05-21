@@ -36,9 +36,13 @@ class CreateBlobServiceClient:
                 if __storage_account_url is None:
                     raise Exception(f"Environment variable {AZURE_STORAGE_ACCOUNT_URL} is not set.")
                 
-                _credential = DefaultAzureCredential()
+                __credential = ClientSecretCredential(
+                    tenant_id=__tenant_id,
+                    client_id=__client_id,
+                    client_secret=__client_secret
+                )
                 
-                CreateBlobServiceClient.blob_service_client = BlobServiceClient(account_url=__storage_account_url, credential=_credential)
+                CreateBlobServiceClient.blob_service_client = BlobServiceClient(account_url=__storage_account_url, credential=__credential)
                 
                 logger.info('Azure Connection Successful!')
                 

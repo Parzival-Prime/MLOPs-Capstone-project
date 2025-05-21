@@ -3,8 +3,7 @@ from src.logger import logging
 from src.exception import handle_exception, CustomException
 from src.configurations.azure_connection import CreateBlobServiceClient
 
-from azure.core.exceptions import ResourceNotFoundError, ServiceRequestError, AzureError
-from azure.core.exceptions import C 
+from azure.core.exceptions import ResourceNotFoundError, ServiceRequestError, ResourceExistsError, AzureError
 
 import pickle
 from pandas import DataFrame, read_csv
@@ -32,47 +31,33 @@ class AzureBlobStorage:
         try:
             logger.info('checking resource...')
             
-            # to suppress unwanted azure log
-            azure_logger = logging.getLogger('azure.core.pipeline.policies.http_logging_policy')
-            azure_logger.setLevel(logging.WARNING)  # or ERROR to suppress more
-            # Optional: Suppress urllib3 if using requests under the hood
-            urllib_logger = logging.getLogger("urllib3")
-            urllib_logger.setLevel(logging.WARNING)
-            
             blob_client = self.blob_service_client.get_blob_client(container=container_name, blob=file_path)
             blob_client.get_blob_properties()
             
-            logging.info('Resource is available!')
+            logger.info('Resource is available!')
             return True
         except ResourceNotFoundError as e:
-            logging.error('Resource not available!')
+            logger.error('Resource not available!')
             raise CustomException(e)
         except Exception as e:
-            logging.error('Some error occured in function "is_file_available" in azure_storage.py!')
+            logger.error('Some error occured in function "is_file_available" in azure_storage.py!')
             raise CustomException(e)
         
         
     @handle_exception
-    def upload_file(self, file_path: str, file_blob_name: str,  container_name: str, file_blob_dir: str=None, remove: bool=True) -> None:
+    def upload_file(self, file_path: str, file_blob_path: str,  container_name: str, remove: bool=True) -> None:
         """This method uploads file to Azure Storage Service.
         
         Arguments:
-            from_directory(str): Path of the local file.
-            to_directory(str): Target file path in the bucket.
+            file_path(str): Path of the local file.
+            file_blob_path(str): file path in the container to upload.
             container_name(str): Name of the Container.
             remove(bool): If True, deletes the local file after upload.
         """
         try:
-            logger.info(f'Uploading file from {file_path} to {file_blob_dir | 'top_directory'} in {container_name} blob storage container on Azure...')
+            logger.info(f'Uploading file from {file_path} to {file_blob_path} in {container_name} blob storage container on Azure...')
             
-            azure_logger = logging.getLogger('azure.core.pipeline.policies.http_logging_policy')
-            azure_logger.setLevel(logging.WARNING)  # or ERROR to suppress more
-            # Optional: Suppress urllib3 if using requests under the hood
-            urllib_logger = logging.getLogger("urllib3")
-            urllib_logger.setLevel(logging.WARNING)
-            
-            uploading_model_path = os.path.join(file_blob_dir, file_blob_name)
-            blob_client = self.blob_service_client.get_blob_client(container=container_name, blob=uploading_model_path)
+            blob_client = self.blob_service_client.get_blob_client(container=container_name, blob=file_blob_path)
             
             blob_client.upload_blob(data=open(file_path, 'rb'), overwrite=True)
             logger.info('file uploaded Successfully!')
@@ -82,37 +67,36 @@ class AzureBlobStorage:
                 logging.info(f'Local file {file_path} deleted after upload!')
             
         except ServiceRequestError as e:
-            logging.error('There is a network error os DNS faliure, client cannot reach the Azure service.')
+            logger.error('There is a network error os DNS faliure, client cannot reach the Azure service.')
             raise CustomException(e)
         except AzureError as e:
-            logging.error('There is some kind of Azure Error!')
+            logger.error('There is some kind of Azure Error!')
             raise CustomException(e)
         except Exception as e:
-            logging.error('An Unexpected Error occured!')
+            logger.error('An Unexpected Error occured!')
             raise CustomException(e)
         
         
     @handle_exception
-    def download_file(self, file_blob_name: str, container_name: str, file_save_path: str, file_blob_dir: str=None) -> object:
+    def download_file(self, file_blob_path: str, container_name: str, file_save_path: str) -> object:
         """Downloads the specified model stored on Azure Blob Storage.
         
         Arguments:
-            model_name(str): Name of the model file.
+            file_blob_path(str): Path of the file in the container.
             container_name(str): Name of the Container in which model is stored.
-            model_directory(str): Path of the model file in the container.
+            file_save_path(str): Path where file is to be saved.
             
         Returns:
-            object: Model object.
+            just downloads the file in specified path.
         """
         try:
             logger.info('Downloading Model...')
             
-            if file_blob_dir is not None:
-                file_path = os.path.join(file_blob_dir, file_blob_name)
-            else:
-                file_path = file_blob_name
+            file_status = self.is_file_available(container_name=container_name, file_path=file_blob_path)
+            if not file_status:
+                raise ResourceNotFoundError
                 
-            blob_client = self.blob_service_client.get_blob_client(container=container_name, blob=file_path)
+            blob_client = self.blob_service_client.get_blob_client(container=container_name, blob=file_blob_path)
             
             blob_data = blob_client.download_blob().readall()
             
@@ -120,15 +104,55 @@ class AzureBlobStorage:
                 pickle.dump(blob_data, model_file)
                 
         except ResourceNotFoundError as e:
-            logging.error('ResourceError! Blob not found in container.')
+            logger.error('ResourceError! Blob not found in container.')
             raise CustomException(e)
         except ServiceRequestError as e:
-            logging.error('There is a network error os DNS faliure, client cannot reach the Azure service.')
+            logger.error('There is a network error os DNS faliure, client cannot reach the Azure service.')
             raise CustomException(e)
         except AzureError as e:
-            logging.error('There is some kind of Azure Error!')
+            logger.error('There is some kind of Azure Error!')
             raise CustomException(e)
         except Exception as e:
-            logging.error('An Unexpected Error occured!')
+            logger.error('An Unexpected Error occured!')
             raise CustomException(e)
         
+    
+    @handle_exception
+    def create_container(self, container_name: str):
+        """Creates a new container in Storage Account.
+        
+        Parameters
+        ----------
+        container_name(str): Name of the container to create
+        
+        Returns
+        -------
+        returns nothing just creates container.
+        """
+        try:
+            logger.info(f'Creating new container "{container_name}"')
+            container_client = self.blob_service_client.create_container(container_name)
+            logger.info('Container created Successfully!')
+        except ResourceExistsError as e:
+            logger.error(f'Container with name {container_name} already exits!')
+        except ServiceRequestError as e:
+            logger.error('There is a network error os DNS faliure, client cannot reach the Azure service.')
+            raise CustomException(e)
+        except AzureError as e:
+            logger.error('Some Azure Error Occured!')
+            raise CustomException(e)
+        except Exception as e:
+            logger.error('An Unexpected Error occured!')
+            raise CustomException(e)
+    
+    @handle_exception
+    def get_storage_account_info(self):
+        """Logs connected Blob Storage accounts info."""
+        try:
+            logger.info('Fetching Storage Account Info...')
+            acc_info = self.blob_service_client.get_account_information()
+            logger.info(f'Account Info: {acc_info}')
+        
+        except Exception as e:
+            logger.error('Some error occured in get_storage_account_info method!')
+            raise CustomException(e)

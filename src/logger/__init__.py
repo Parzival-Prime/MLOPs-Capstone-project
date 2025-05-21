@@ -5,7 +5,9 @@ from src.constants import ROOT_DIR, LOG_DIR, LOG_FILENAME, MAX_LOG_SIZE, BACKUP_
 
 
 log_dir_path = os.path.join(ROOT_DIR, LOG_DIR)
-os.makedirs(log_dir_path, exists_ok=True)
+os.makedirs(log_dir_path, exist_ok=True)
+
+logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.WARNING)
 
 
 def configure_logger():
@@ -24,7 +26,7 @@ def configure_logger():
     consolehandler.setFormatter(formatter)
     consolehandler.setLevel(logging.INFO)
     
-    logging.addHandler(filehandler)
-    logging.addHandler(consolehandler)
+    logger.addHandler(filehandler)
+    logger.addHandler(consolehandler)
     
 configure_logger()

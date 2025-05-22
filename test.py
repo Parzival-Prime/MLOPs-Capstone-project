@@ -1,4 +1,5 @@
-from src.components.data_ingestion import DataIngestion
+from src.pipeline.training_pipeline import TrainingPipeline
 
-data_ingestion = DataIngestion()
-data_ingestion.initiate_data_ingestion()
+training_pipeline = TrainingPipeline()
+
+training_pipeline.initiate_training_pipeline()

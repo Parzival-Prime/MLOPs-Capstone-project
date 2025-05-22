@@ -18,8 +18,8 @@ logger = logging.getLogger('Data Ingestion')
 class DataIngestion:
     """Class for Data Ingestion."""
     
-    def __init__(self):
-        self.data_ingestion_config = DataIngestionConfig()
+    def __init__(self, data_ingestion_config: DataIngestionConfig=DataIngestionConfig()):
+        self.data_ingestion_config = data_ingestion_config
     
     @handle_exception
     def export_data_into_artifact(self):
@@ -44,7 +44,7 @@ class DataIngestion:
     def initiate_data_ingestion(self):
         """Method to initiate data Ingestion."""
         try:
-            logger.info('Data Ingestion Initiated...')
+            logger.info('Initiated Data Ingestion...')
             self.export_data_into_artifact()
             
             data_ingestion_artifact = DataIngestionArtifact(raw_data_file_path=self.data_ingestion_config.raw_data_path)

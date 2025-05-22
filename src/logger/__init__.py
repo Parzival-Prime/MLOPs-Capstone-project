@@ -1,7 +1,7 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from src.constants import ROOT_DIR, LOG_DIR, LOG_FILENAME, MAX_LOG_SIZE, BACKUP_COUNT
+from src.constants import ROOT_DIR, LOG_DIR, LOG_FILENAME, MAX_LOG_SIZE, BACKUP_COUNT, LOG_LEVEL, FILE_HANLDER_ENCODING
 
 
 log_dir_path = os.path.join(ROOT_DIR, LOG_DIR)
@@ -36,22 +36,21 @@ for handler in msal_logger.handlers:
 
 
 
-
 def configure_logger():
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(LOG_LEVEL)
     
     log_file_path = os.path.join(log_dir_path, LOG_FILENAME)
     
     formatter = logging.Formatter('[%(asctime)s] %(name)s - %(levelname)s - %(message)s')
     
-    filehandler = RotatingFileHandler(log_file_path, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT) 
+    filehandler = RotatingFileHandler(log_file_path, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT, encoding=FILE_HANLDER_ENCODING) 
     filehandler.setFormatter(formatter)
-    filehandler.setLevel(logging.DEBUG)
+    filehandler.setLevel(LOG_LEVEL)
     
     consolehandler = logging.StreamHandler()
     consolehandler.setFormatter(formatter)
-    consolehandler.setLevel(logging.INFO)
+    consolehandler.setLevel(LOG_LEVEL)
     
     logger.addHandler(filehandler)
     logger.addHandler(consolehandler)

@@ -1,6 +1,7 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+import dagshub
 from src.constants import ROOT_DIR, LOG_DIR, LOG_FILENAME, MAX_LOG_SIZE, BACKUP_COUNT, LOG_LEVEL, FILE_HANLDER_ENCODING
 
 
@@ -21,6 +22,12 @@ urllib_logger.setLevel(logging.WARNING)
 msal_logger = logging.getLogger('msal')
 msal_logger.setLevel(logging.WARNING)
 
+dagshub_logger = logging.getLogger('dagshub')
+dagshub_logger.setLevel(logging.WARNING)
+
+httpcore_logger = logging.getLogger('httpcore')
+httpcore_logger.setLevel(logging.WARNING)
+
 # Ensure all handlers attached to those loggers also suppress
 for handler in azure_logger.handlers:
     handler.setLevel(logging.WARNING)
@@ -32,6 +39,12 @@ for handler in urllib_logger.handlers:
     handler.setLevel(logging.WARNING)
     
 for handler in msal_logger.handlers:
+    handler.setLevel(logging.WARNING)
+    
+for handler in dagshub_logger.handlers:
+    handler.setLevel(logging.WARNING)
+    
+for handler in httpcore_logger.handlers:
     handler.setLevel(logging.WARNING)
 
 

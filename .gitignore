@@ -176,3 +176,4 @@ cython_debug/
 local_data_repo/
 artifact/
 models/
+reports/

@@ -103,11 +103,11 @@ class DataTransformation:
         """This function takes raw data and uses to preprocess_dataframe() method to perform transformation and save it to artifact."""
         try:
             logger.info('Saving train_data and test_data files')
-            os.makedirs(os.path.dirname(self.data_transformation_config.train_data_path), exist_ok=True)
-            os.makedirs(os.path.dirname(self.data_transformation_config.test_data_path), exist_ok=True)
+            os.makedirs(os.path.dirname(self.data_transformation_config.train_data_file_path), exist_ok=True)
+            os.makedirs(os.path.dirname(self.data_transformation_config.test_data_file_path), exist_ok=True)
             
-            train_data.to_csv(self.data_transformation_config.train_data_path)
-            test_data.to_csv(self.data_transformation_config.test_data_path)
+            train_data.to_csv(self.data_transformation_config.train_data_file_path)
+            test_data.to_csv(self.data_transformation_config.test_data_file_path)
             logger.info('Train and Test data files saved to artifact!')
             
         except Exception as e:
@@ -132,8 +132,8 @@ class DataTransformation:
             self.save_transformed_data(train_data=train_data, test_data=test_data)
             
             data_transformation_artifact = DataTransformationArtifact(
-                train_data_path=self.data_transformation_config.train_data_path,
-                test_data_path=self.data_transformation_config.test_data_path
+                train_data_file_path=self.data_transformation_config.train_data_file_path,
+                test_data_file_path=self.data_transformation_config.test_data_file_path
             )
             
             logger.info('Data Transformation Completed!')
@@ -145,7 +145,7 @@ class DataTransformation:
 def main():
     """Main function"""
     data_ingestion_config = DataIngestionConfig()
-    data_transformation = DataTransformation(data_ingestion_artifact=DataIngestionArtifact(raw_data_file_path=data_ingestion_config.raw_data_path))
+    data_transformation = DataTransformation(data_ingestion_artifact=DataIngestionArtifact(raw_data_file_path=data_ingestion_config.raw_data_file_path))
     data_transformation.initiate_data_transformation()
     
 if __name__=="__main__":

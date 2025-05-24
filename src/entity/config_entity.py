@@ -20,15 +20,15 @@ training_pipeline_config: TrainingPipelineConfig = TrainingPipelineConfig()
 
 @dataclass
 class DataIngestionConfig:
-    raw_data_path: str = os.path.join(training_pipeline_config.artifact_dir, DATA_INGESTION_DIR, INGESTED_DATA_FILE_NAME)
+    raw_data_file_path: str = os.path.join(training_pipeline_config.artifact_dir, DATA_INGESTION_DIR, INGESTED_DATA_FILE_NAME)
     blob_data_path: str = os.path.join(DATA_BLOB_DIR, DATA_FILE_NAME)
     
     
 @dataclass
 class DataTransformationConfig:
     transformed_data_dir: str = os.path.join(training_pipeline_config.artifact_dir, DATA_TRANSFORMATION_DIR)
-    train_data_path: str = os.path.join(transformed_data_dir, TRAIN_DATA_FILE)
-    test_data_path: str = os.path.join(transformed_data_dir, TEST_DATA_FILE)
+    train_data_file_path: str = os.path.join(transformed_data_dir, TRAIN_DATA_FILE)
+    test_data_file_path: str = os.path.join(transformed_data_dir, TEST_DATA_FILE)
     test_size: float = params['data_transformation']['test_size']
     
 @dataclass
@@ -44,4 +44,10 @@ class FeatureEngineeringConfig:
 class ModelTrainerConfig:
     model_params: dict = field(default_factory=lambda: params['model_params'])
     model_object_file_path: str = os.path.join(MODELS_DIR, MODEL_OBJECT_FILE_NAME)
+    
+    
+@dataclass
+class ModelEvaluationConfig:
+    metrics_file_path = os.path.join(REPORTS_DIR, METRICS_FILE_NAME)
+    experiment_info_file_path = os.path.join(REPORTS_DIR, EXPERIMENT_INFO_FILE_NAME)
     

@@ -21,8 +21,8 @@ stages:
       size: 669108
     - path: src/components/data_transformation.py
       hash: md5
-      md5: 90c2bf9779e786ba267bbbdf638c42ec
-      size: 6432
+      md5: 2eb05e995581154c0deb8ba6fc4284bf
+      size: 6477
     params:
       params.yaml:
         data_transformation.test_size: 0.2
@@ -48,8 +48,8 @@ stages:
       size: 336668
     - path: src/components/feature_engineering.py
       hash: md5
-      md5: 2ac5bb33f714a2ddd8cca5fa6f2da43f
-      size: 5827
+      md5: 8b20f5dcc19901a0175dbd56a64dc2d8
+      size: 5867
     params:
       params.yaml:
         feature_engineering.max_features: 20
@@ -91,3 +91,27 @@ stages:
       hash: md5
       md5: 6a873de67cc00bf90c615a94a6807581
       size: 872
+  model_evaluation:
+    cmd: python src/components/model_evaluation.py
+    deps:
+    - path: artifact/feature/test.csv
+      hash: md5
+      md5: a5d9b91797638917706caa9f13f0bb8d
+      size: 4379
+    - path: models/model.pkl
+      hash: md5
+      md5: 6a873de67cc00bf90c615a94a6807581
+      size: 872
+    - path: src/components/model_evaluation.py
+      hash: md5
+      md5: 25f6032e4da82e2aa786b29ac9409ee8
+      size: 6373
+    outs:
+    - path: reports/experiment_info.json
+      hash: md5
+      md5: 58acde9ce4654fbbd83c108e09489eb5
+      size: 82
+    - path: reports/metrics.json
+      hash: md5
+      md5: 69e2dbca6628341243036acd4bb81691
+      size: 131

@@ -85,8 +85,8 @@ class FeatureEngineering:
         """This method is responsible for initiating feature engineering."""
         try:
             logger.info('Initiated Feature Engineering Process...')
-            train_data = load_csv(self.data_transformation_artifact.train_data_path)
-            test_data = load_csv(self.data_transformation_artifact.test_data_path)
+            train_data = load_csv(self.data_transformation_artifact.train_data_file_path)
+            test_data = load_csv(self.data_transformation_artifact.test_data_file_path)
             
             train_df, test_df = self.apply_bow(train_data=train_data, test_data=test_data, max_features=self.feature_engineering_config.max_features)
             
@@ -96,8 +96,8 @@ class FeatureEngineering:
             logger.info('Feature Engineering Completed!')
             
             feature_engineering_artifact = FeatureEngineeringArtifact(
-                featured_train_data_path=self.feature_engineering_config.featured_train_data_file_path,
-                featured_test_data_path=self.feature_engineering_config.featured_test_data_file_path,
+                featured_train_data_file_path=self.feature_engineering_config.featured_train_data_file_path,
+                featured_test_data_file_path=self.feature_engineering_config.featured_test_data_file_path,
                 vectorizer_file_path=self.feature_engineering_config.vectorizer_file_path
             )
             logger.debug('Returned Feature Engineering Artifact.')
@@ -113,8 +113,8 @@ def main():
     data_transformation_config = DataTransformationConfig()
     feature_engineering = FeatureEngineering(
         data_transformation_artifact=DataTransformationArtifact(
-            train_data_path=data_transformation_config.train_data_path, 
-            test_data_path=data_transformation_config.test_data_path
+            train_data_file_path=data_transformation_config.train_data_file_path, 
+            test_data_file_path=data_transformation_config.test_data_file_path
             ))
     feature_engineering.initiate_feature_engineering()
     

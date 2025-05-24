@@ -39,6 +39,12 @@ MODEL_BLOB_NAME: str = 'model.pkl'
 MODEL_BLOB_DIR: str = 'models'
 DATA_BLOB_DIR: str = 'data'
 
+
+# DagsHub and MLFlow
+DAGSHUB_URL: str = "https://dagshub.com"
+DAGSHUB_REPO_OWNER: str = 'Parzival-Prime'
+DAGSHUB_REPO_NAME: str = 'MLOPs-Capstone-project'
+
 # pipeline
 PIPELINE_NAME: str = ''
 ARTIFACT_DIR: str = 'artifact'
@@ -61,3 +67,8 @@ FEATURED_TEST_FILE_NAME: str = 'test.csv'
 
 # Model Training
 MODEL_OBJECT_FILE_NAME: str = 'model.pkl'
+
+# Model Evaluation
+REPORTS_DIR: str = 'reports'
+METRICS_FILE_NAME: str = 'metrics.json'
+EXPERIMENT_INFO_FILE_NAME: str = 'experiment_info.json'

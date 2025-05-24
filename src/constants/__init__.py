@@ -3,6 +3,7 @@ from datetime import datetime
 from from_root import from_root
 from dotenv import load_dotenv
 from pathlib import Path
+import logging
 
 ROOT_DIR = Path(from_root())
 
@@ -15,16 +16,15 @@ LOG_FILENAME = f"{datetime.now().strftime('%Y-%m-%d--%H-%M-%S')}.log"
 MAX_LOG_SIZE=5*1024*1024
 BACKUP_COUNT=3
 FILE_HANLDER_ENCODING='utf-8'
+LOG_LEVEL= logging.DEBUG if os.getenv('ENV')=='dev' else logging.INFO
 
 
 
-# Model and files
-MODEL_DIR = os.path.join(ROOT_DIR, 'models')
-MODEL_NAME = 'model.pkl'
-MODEL_BLOB_NAME = 'model.pkl'
-MODEL_BLOB_DIR = 'models'
-DATA_BLOB_DIR = 'data'
-DATA_FILE_NAME = 'data.csv' # IMDB.csv
+# Miscellaneous
+MODELS_DIR: str = 'models'
+DATA_FILE_NAME: str = 'data.csv' # IMDB.csv
+PARAMS_FILE_PATH: str = 'params.yaml'
+
 
 # Azure
 BLOB_CONTAINER = 'capstoneprojcunt'
@@ -35,15 +35,17 @@ AZURE_CLIENT_ID=os.getenv('AZURE_CLIENT_ID')
 AZURE_CLIENT_SECRET=os.getenv('AZURE_CLIENT_SECRET')
 AZURE_STORAGE_ACCOUNT_URL=os.getenv('AZURE_STORAGE_ACCOUNT_URL')
 SERVICE_PRINCIPLE_ID=os.getenv('SERVICE_PRINCIPLE_ID')
+MODEL_BLOB_NAME: str = 'model.pkl'
+MODEL_BLOB_DIR: str = 'models'
+DATA_BLOB_DIR: str = 'data'
 
 # pipeline
 PIPELINE_NAME: str = ''
 ARTIFACT_DIR: str = 'artifact'
-TEST_SIZE: float = 0.2
 
 # Data Ingestion
 DATA_INGESTION_DIR: str = 'ingested_data'
-DATA_INGESTION_RAW_DIR: str = 'raw_data'
+INGESTED_DATA_FILE_NAME: str = 'data.csv'
 
 # Data Transformation
 DATA_TRANSFORMATION_DIR: str = 'transformed_data'
@@ -54,6 +56,8 @@ TEST_DATA_FILE: str = 'test.csv'
 FEATURE_ENGINEERING_DIR: str = 'feature'
 VECTORIZER_FILE_NAME: str = 'vectorizer.pkl'
 MAX_FEATURES: int = 20
-FEATURED_DATA_DIR: str = 'data'
 FEATURED_TRAIN_FILE_NAME: str = 'train.csv'
 FEATURED_TEST_FILE_NAME: str = 'test.csv' 
+
+# Model Training
+MODEL_OBJECT_FILE_NAME: str = 'model.pkl'

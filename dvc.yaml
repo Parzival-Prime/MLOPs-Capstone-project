@@ -1,0 +1,44 @@
+stages:
+  data_ingestion:
+    cmd: python src/components/data_ingestion.py
+    deps:
+      - src/components/data_ingestion.py
+    outs:
+      - artifact/ingested_data/data.csv
+
+  data_transformation:
+    cmd: python src/components/data_transformation.py
+    deps:
+      - src/components/data_transformation.py
+      - artifact/ingested_data/data.csv
+    params:
+      - data_transformation.test_size
+    outs:
+      - artifact/transformed_data/train.csv
+      - artifact/transformed_data/test.csv
+  
+  feature_engineering:
+    cmd: python src/components/feature_engineering.py
+    deps:
+      - src/components/feature_engineering.py
+      - artifact/transformed_data/train.csv
+      - artifact/transformed_data/test.csv
+    params:
+      - feature_engineering.max_features
+    outs:
+      - artifact/feature/train.csv
+      - artifact/feature/test.csv
+      - models/vectorizer.pkl
+
+  model_training:
+    cmd: python src/components/model_training.py
+    deps:
+      - src/components/model_training.py
+      - artifact/feature/train.csv
+      - artifact/feature/test.csv
+    params:
+      - model_params.C
+      - model_params.solver
+      - model_params.penalty
+    outs:
+      - models/model.pkl

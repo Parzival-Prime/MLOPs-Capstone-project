@@ -1,0 +1,93 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/components/data_ingestion.py
+    deps:
+    - path: src/components/data_ingestion.py
+      hash: md5
+      md5: 48757786137cdb4af7538a16962bba9d
+      size: 2735
+    outs:
+    - path: artifact/ingested_data/data.csv
+      hash: md5
+      md5: bc117278b929900f238f0635218ff00f
+      size: 669108
+  data_transformation:
+    cmd: python src/components/data_transformation.py
+    deps:
+    - path: artifact/ingested_data/data.csv
+      hash: md5
+      md5: bc117278b929900f238f0635218ff00f
+      size: 669108
+    - path: src/components/data_transformation.py
+      hash: md5
+      md5: 90c2bf9779e786ba267bbbdf638c42ec
+      size: 6432
+    params:
+      params.yaml:
+        data_transformation.test_size: 0.2
+    outs:
+    - path: artifact/transformed_data/test.csv
+      hash: md5
+      md5: b3b42f10f93d31e39d278bfc43ec1c81
+      size: 77269
+    - path: artifact/transformed_data/train.csv
+      hash: md5
+      md5: f5bf0f13435e7e9777e9fb66ceb6f759
+      size: 336668
+  feature_engineering:
+    cmd: python src/components/feature_engineering.py
+    deps:
+    - path: artifact/transformed_data/test.csv
+      hash: md5
+      md5: b3b42f10f93d31e39d278bfc43ec1c81
+      size: 77269
+    - path: artifact/transformed_data/train.csv
+      hash: md5
+      md5: f5bf0f13435e7e9777e9fb66ceb6f759
+      size: 336668
+    - path: src/components/feature_engineering.py
+      hash: md5
+      md5: 2ac5bb33f714a2ddd8cca5fa6f2da43f
+      size: 5827
+    params:
+      params.yaml:
+        feature_engineering.max_features: 20
+    outs:
+    - path: artifact/feature/test.csv
+      hash: md5
+      md5: a5d9b91797638917706caa9f13f0bb8d
+      size: 4379
+    - path: artifact/feature/train.csv
+      hash: md5
+      md5: 0dd2480db6a3bf2e799bc1e0e8f3f59b
+      size: 17334
+    - path: models/vectorizer.pkl
+      hash: md5
+      md5: dfdb8e3a83bb7154a52348c21d2b9d22
+      size: 1072
+  model_training:
+    cmd: python src/components/model_training.py
+    deps:
+    - path: artifact/feature/test.csv
+      hash: md5
+      md5: a5d9b91797638917706caa9f13f0bb8d
+      size: 4379
+    - path: artifact/feature/train.csv
+      hash: md5
+      md5: 0dd2480db6a3bf2e799bc1e0e8f3f59b
+      size: 17334
+    - path: src/components/model_training.py
+      hash: md5
+      md5: efad4f7a12672a1b393a067b5bfb8251
+      size: 3260
+    params:
+      params.yaml:
+        model_params.C: 1
+        model_params.penalty: l1
+        model_params.solver: liblinear
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: 6a873de67cc00bf90c615a94a6807581
+      size: 872

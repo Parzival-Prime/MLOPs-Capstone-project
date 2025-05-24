@@ -14,7 +14,7 @@ nltk.download('wordnet')
 
 from src.logger import logging
 from src.exception import CustomException, handle_exception
-from src.entity.config_entity import DataTransformationConfig
+from src.entity.config_entity import DataTransformationConfig, DataIngestionConfig
 from src.entity.artifact_entity import DataTransformationArtifact, DataIngestionArtifact
 
 logger = logging.getLogger('Data Transformation')
@@ -141,3 +141,12 @@ class DataTransformation:
         except Exception as e:
             logger.error('Unexpected error occured in initiate_data_transformation() method.')
             raise CustomException(e)
+        
+def main():
+    """Main function"""
+    data_ingestion_config = DataIngestionConfig()
+    data_transformation = DataTransformation(data_ingestion_artifact=DataIngestionArtifact(raw_data_file_path=data_ingestion_config.raw_data_path))
+    data_transformation.initiate_data_transformation()
+    
+if __name__=="__main__":
+    main()

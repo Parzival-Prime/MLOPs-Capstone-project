@@ -101,15 +101,7 @@ class AzureBlobStorage:
             
             blob_data = blob_client.download_blob().readall()
             
-            save_dir = os.path.dirname(file_save_path)
-            # print('save_dir: ', save_dir)
-            # print('file_name: ', os.path.basename(file_save_path))
-            os.makedirs(save_dir, exist_ok=True)
-            
-            with open(file_save_path, 'wb') as file:
-                file.write(blob_data)
-            
-            logger.info('File downloaded Successfully')
+            return blob_data
             
         except ResourceNotFoundError as e:
             logger.error('ResourceError! Blob not found in container.')

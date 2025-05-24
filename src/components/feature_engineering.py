@@ -1,13 +1,16 @@
-import numpy as np
-import pandas as pd
 import os
 import yaml
 import pickle
+
+import numpy as np
+import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 
 from src.logger import logging
+from src.constants import ROOT_DIR
+from src.utils import load_csv, save_binary_file
 from src.exception import handle_exception, CustomException
-from src.entity.config_entity import FeatureEngineeringConfig
+from src.entity.config_entity import FeatureEngineeringConfig, DataTransformationConfig
 from src.entity.artifact_entity import FeatureEngineeringArtifact, DataTransformationArtifact
 
 logger = logging.getLogger('Feature Engineering')
@@ -20,42 +23,6 @@ class FeatureEngineering:
 
         self.data_transformation_artifact = data_transformation_artifact
         self.feature_engineering_config = feature_engineering_config
-    
-    
-    @handle_exception
-    def load_params(self, params_path: str) -> dict:
-        """Load params from a yaml file"""
-        try:
-            with open(params_path, 'r') as file:
-                params = yaml.safe_load(file)
-            
-            logger.debug(f'Parameters loaded from {params_path}')
-            return params
-        except FileNotFoundError as e:
-            logger.error(f'File not found: {params_path}')
-            raise CustomException(e)
-        except yaml.YAMLError as e:
-            logger.error(f'YAML Error: {e}')
-            raise CustomException(e)
-        except Exception as e:
-            logger.error(f'Unexpected error occured: {e}')
-            raise
-        
-    @handle_exception
-    def load_csv(self, file_path: str) -> pd.DataFrame:
-        """Loads data from a csv file."""
-        try:
-            df = pd.read_csv(file_path)
-            df.fillna('', inplace=True)
-            logger.debug(f'Data loaded and NaNs filled from: {file_path}')
-            
-            return df
-        except pd.errors.ParserError as e:
-            logger.error(f'Failed to parse the CSV file: {file_path}')
-            raise
-        except Exception as e:
-            logger.error(f'Unexpected error occured while loading data from : {file_path}')
-            raise
         
     
     @handle_exception
@@ -70,24 +37,29 @@ class FeatureEngineering:
             X_test = test_data['review'].values
             y_test = test_data['sentiment'].values
             
+            logger.debug('Transforming X_train and X_test with bag of words...')
             X_train_bow = vectorizer.fit_transform(X_train)
             X_test_bow = vectorizer.transform(X_test)
+            logger.debug('Tranformation Successful!')
             
-            train_df = pd.DataFrame(X_train_bow)
+            logger.debug(f'Type of X_train_bow: {type(X_train_bow)}')
+            logger.debug(f'Type of X_test_bow: {type(X_test_bow)}')
+            
+            train_df = pd.DataFrame(X_train_bow.toarray())
             train_df['label'] = y_train
             
-            test_df = pd.DataFrame(X_test_bow)
+            test_df = pd.DataFrame(X_test_bow.toarray())
             test_df['label'] = y_test
-            
+            logger.debug(f'X_train_bow and X_test_bow converted into {type(train_df)} and merged respective labels.')
+        
             logger.info('Bag of words applied and Data Transformed.')
             
-            logger.debug(f'Saving Vectorizer object to {self.feature_engineering_config.vectorizer_file_path}')
+            logger.debug(f'Saving Vectorizer object to {os.path.relpath(path=self.feature_engineering_config.vectorizer_file_path, start=ROOT_DIR)}')
             
             os.makedirs(os.path.dirname(self.feature_engineering_config.vectorizer_file_path), exist_ok=True)
             
-            with open(self.feature_engineering_config.vectorizer_file_path, 'wb') as file:
-                pickle.dump(obj=vectorizer, file=file)
-            logger.debug('Vectorizer Object saved!')
+            save_binary_file(obj=vectorizer, file_path=self.feature_engineering_config.vectorizer_file_path)
+            logger.debug(f'Vectorizer object saved to {os.path.relpath(start=ROOT_DIR, path=self.feature_engineering_config.vectorizer_file_path)}')
             
             return train_df, test_df
         except Exception as e:
@@ -98,7 +70,7 @@ class FeatureEngineering:
     def save_data(self, dataframe: pd.DataFrame, file_path: str) -> None:
         """Save the dataframe to a csv file"""
         try:
-            logger.info(f'Saving {os.path.basename(file_path)} to {os.path.dirname(file_path)}')
+            logger.info(f'Saving {os.path.basename(file_path)} to {os.path.relpath(path=file_path, start=ROOT_DIR)}')
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
             dataframe.to_csv(file_path, index=False)
             
@@ -113,8 +85,8 @@ class FeatureEngineering:
         """This method is responsible for initiating feature engineering."""
         try:
             logger.info('Initiated Feature Engineering Process...')
-            train_data = self.load_csv(self.data_transformation_artifact.train_data_path)
-            test_data = self.load_csv(self.data_transformation_artifact.test_data_path)
+            train_data = load_csv(self.data_transformation_artifact.train_data_path)
+            test_data = load_csv(self.data_transformation_artifact.test_data_path)
             
             train_df, test_df = self.apply_bow(train_data=train_data, test_data=test_data, max_features=self.feature_engineering_config.max_features)
             
@@ -125,7 +97,8 @@ class FeatureEngineering:
             
             feature_engineering_artifact = FeatureEngineeringArtifact(
                 featured_train_data_path=self.feature_engineering_config.featured_train_data_file_path,
-                featured_test_data_path=self.feature_engineering_config.featured_test_data_file_path
+                featured_test_data_path=self.feature_engineering_config.featured_test_data_file_path,
+                vectorizer_file_path=self.feature_engineering_config.vectorizer_file_path
             )
             logger.debug('Returned Feature Engineering Artifact.')
             
@@ -133,4 +106,17 @@ class FeatureEngineering:
         except Exception as e:
             logger.error(f'Failed to Complete Feature Engineering Process: {e}')
             raise
+    
         
+def main():
+    """Main Function"""
+    data_transformation_config = DataTransformationConfig()
+    feature_engineering = FeatureEngineering(
+        data_transformation_artifact=DataTransformationArtifact(
+            train_data_path=data_transformation_config.train_data_path, 
+            test_data_path=data_transformation_config.test_data_path
+            ))
+    feature_engineering.initiate_feature_engineering()
+    
+if __name__=='__main__':
+    main()

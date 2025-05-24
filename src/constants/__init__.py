@@ -21,7 +21,6 @@ LOG_LEVEL= logging.DEBUG if os.getenv('ENV')=='dev' else logging.INFO
 
 
 # Miscellaneous
-MODELS_DIR: str = 'models'
 DATA_FILE_NAME: str = 'data.csv' # IMDB.csv
 PARAMS_FILE_PATH: str = 'params.yaml'
 
@@ -35,9 +34,8 @@ AZURE_CLIENT_ID=os.getenv('AZURE_CLIENT_ID')
 AZURE_CLIENT_SECRET=os.getenv('AZURE_CLIENT_SECRET')
 AZURE_STORAGE_ACCOUNT_URL=os.getenv('AZURE_STORAGE_ACCOUNT_URL')
 SERVICE_PRINCIPLE_ID=os.getenv('SERVICE_PRINCIPLE_ID')
-MODEL_BLOB_NAME: str = 'model.pkl'
-MODEL_BLOB_DIR: str = 'models'
 DATA_BLOB_DIR: str = 'data'
+DVC_REPO_FOLDER: str = 'dvcstore'
 
 
 # DagsHub and MLFlow
@@ -72,3 +70,10 @@ MODEL_OBJECT_FILE_NAME: str = 'model.pkl'
 REPORTS_DIR: str = 'reports'
 METRICS_FILE_NAME: str = 'metrics.json'
 EXPERIMENT_INFO_FILE_NAME: str = 'experiment_info.json'
+MODEL_STAGE: str = 'Staging'  # or 'Production', 'Development'
+MODEL_NAME: str = 'imdb_sentiment_model'
+MODELS_DIR: str = 'models'
+
+# Model Pusher
+MODEL_BLOB_NAME: str = 'model.pkl'
+MODEL_BLOB_DIR: str = 'models'

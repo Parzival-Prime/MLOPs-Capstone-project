@@ -52,4 +52,11 @@ stages:
     outs:
       - reports/metrics.json
       - reports/experiment_info.json
+
+  model_pusher:
+    cmd: python src/components/model_pusher.py
+    deps:
+      - src/components/model_pusher.py
+      - models/model.pkl
+      - reports/metrics.json
       

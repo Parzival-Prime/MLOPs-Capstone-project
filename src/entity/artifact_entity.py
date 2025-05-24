@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from matplotlib import container
+
 @dataclass
 class DataIngestionArtifact:
     raw_data_file_path: str
@@ -27,3 +29,8 @@ class ModelTrainerArtifact:
 class ModelEvaluationArtifact:
     metrics_file_path: str
     experiment_info_file_path: str
+    
+@dataclass
+class ModelPusherArtifact:
+    model_blob_file_path: str
+    container_name: str

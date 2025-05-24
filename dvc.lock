@@ -79,8 +79,8 @@ stages:
       size: 17334
     - path: src/components/model_training.py
       hash: md5
-      md5: efad4f7a12672a1b393a067b5bfb8251
-      size: 3260
+      md5: 3c033ca7ecca14d00b0e209a2fe16038
+      size: 3380
     params:
       params.yaml:
         model_params.C: 1
@@ -89,7 +89,7 @@ stages:
     outs:
     - path: models/model.pkl
       hash: md5
-      md5: 6a873de67cc00bf90c615a94a6807581
+      md5: 164386b440f850ec5cbd682e03f7f988
       size: 872
   model_evaluation:
     cmd: python src/components/model_evaluation.py
@@ -100,18 +100,33 @@ stages:
       size: 4379
     - path: models/model.pkl
       hash: md5
-      md5: 6a873de67cc00bf90c615a94a6807581
+      md5: 164386b440f850ec5cbd682e03f7f988
       size: 872
     - path: src/components/model_evaluation.py
       hash: md5
-      md5: 25f6032e4da82e2aa786b29ac9409ee8
-      size: 6373
+      md5: 1cf9e6260626119ee041dceec55b0f9b
+      size: 7708
     outs:
     - path: reports/experiment_info.json
       hash: md5
-      md5: 58acde9ce4654fbbd83c108e09489eb5
-      size: 82
+      md5: 8d6ed0c668159709684c068fdf06de6a
+      size: 83
     - path: reports/metrics.json
       hash: md5
       md5: 69e2dbca6628341243036acd4bb81691
       size: 131
+  model_pusher:
+    cmd: python src/components/model_pusher.py
+    deps:
+    - path: models/model.pkl
+      hash: md5
+      md5: 164386b440f850ec5cbd682e03f7f988
+      size: 872
+    - path: reports/metrics.json
+      hash: md5
+      md5: 69e2dbca6628341243036acd4bb81691
+      size: 131
+    - path: src/components/model_pusher.py
+      hash: md5
+      md5: 9771c97d6b384c609bcee6a444ad2dd8
+      size: 2876

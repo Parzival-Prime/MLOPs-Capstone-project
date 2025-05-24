@@ -26,7 +26,11 @@ mlflow.set_tracking_uri(f'{DAGSHUB_URL}/{DAGSHUB_REPO_OWNER}/{DAGSHUB_REPO_NAME}
 
 class ModelEvaluation:
     
-    def __init__(self, model_trainer_artifact: ModelTrainerArtifact, feature_engineering_artifact: FeatureEngineeringArtifact, model_evaluation_config: ModelEvaluationConfig=ModelEvaluationConfig()):
+    def __init__(self, 
+                 model_trainer_artifact: ModelTrainerArtifact, 
+                 feature_engineering_artifact: FeatureEngineeringArtifact, 
+                 model_evaluation_config: ModelEvaluationConfig=ModelEvaluationConfig()
+                 ):
         self.model_evaluation_config = model_evaluation_config
         self.model_trainer_artifact = model_trainer_artifact
         self.feature_engineering_artifact = feature_engineering_artifact
@@ -60,6 +64,27 @@ class ModelEvaluation:
         except Exception as e:
             logger.error(f'Error occured during Evaluating Metrics: {e}')
             raise
+        
+    def register_model(self, model_name: str, model_info: dict) -> None:
+        """Register the model in MLflow."""
+        try:
+            logger.info(f'Registering model {model_name}...')
+            model_uri = f"runs:/{model_info['run_id']}/{model_info['model_path']}"
+            
+            model_version = mlflow.register_model(model_uri=model_uri, name=model_name)
+            
+            client = mlflow.tracking.MlflowClient()
+            client.transition_model_version_stage(
+                name=model_name,
+                version=model_version.version,
+                stage=self.model_evaluation_config.model_stage
+            )
+            
+            logger.info(f'Model {model_name} registered with version {model_version.version}.')
+        except Exception as e:
+            logger.error(f'Error occured during model registration: {e}')
+            raise
+        
     
     def initiate_model_evaluation(self) -> ModelEvaluationArtifact:
         """Initiates Model Evaluation"""
@@ -92,9 +117,14 @@ class ModelEvaluation:
                 logger.debug('Logging model to mlflow...')
                 mlflow.sklearn.log_model(model, 'model')
                 
+                
                 logger.debug('Saving experiment info file...')
-                model_info = {'run_id': run.info.run_id, 'model_path': 'model'}
+                model_info = {'run_id': run.info.run_id, 'model_path': self.model_evaluation_config.models_dir}
                 save_json(dictionary=model_info, file_path=self.model_evaluation_config.experiment_info_file_path)
+                
+                logger.debug('Registering model...')
+                self.register_model(model_name=self.model_evaluation_config.model_name, model_info=model_info)
+                logger.info(f'Model registered with name: {self.model_evaluation_config.model_name}')
                 
                 logger.debug('Logging Model Evaluation artifact...')
                 mlflow.log_artifact(self.model_evaluation_config.metrics_file_path)
@@ -122,14 +152,14 @@ def main():
         feature_engineering_artifact = FeatureEngineeringArtifact(
             featured_train_data_file_path=feature_engineering_config.featured_train_data_file_path,
             featured_test_data_file_path=feature_engineering_config.featured_test_data_file_path,
-            vectorizer_file_path=feature_engineering_config.vectorizer_file_path
+            vectorizer_file_path=feature_engineering_config.vectorizer_file_path,
         )
         model_evaluation_config = ModelEvaluationConfig()
         
         model_evaluation = ModelEvaluation(
             model_trainer_artifact=model_trainer_artifact,
             feature_engineering_artifact=feature_engineering_artifact,
-            model_evaluation_config=model_evaluation_config
+            model_evaluation_config=model_evaluation_config,
         )
         
         model_evaluation.initiate_model_evaluation()

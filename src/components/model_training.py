@@ -15,7 +15,10 @@ logger = logging.getLogger('Model Trainer')
 
 class ModelTrainer:
     
-    def __init__(self, feature_engineering_artifact: FeatureEngineeringArtifact, model_trainer_config: ModelTrainerConfig=ModelTrainerConfig()):
+    def __init__(self, 
+                 feature_engineering_artifact: FeatureEngineeringArtifact, 
+                 model_trainer_config: ModelTrainerConfig=ModelTrainerConfig()
+                 ):
         
         self.feature_engineering_artifact = feature_engineering_artifact
         self.model_trainer_config = model_trainer_config
@@ -43,7 +46,7 @@ class ModelTrainer:
         """Initiates Model Training."""
         try:
             logger.debug('Loading Training Data...')
-            train = load_csv(file_path=self.feature_engineering_artifact.featured_train_data_path)
+            train = load_csv(file_path=self.feature_engineering_artifact.featured_train_data_file_path)
             X_train, y_train = train.iloc[:, :-1].values, train.iloc[:, -1].values
             
             model = self.build_and_train_model(X_train=X_train, y_train=y_train, params=self.model_trainer_config.model_params)
@@ -64,7 +67,11 @@ def main():
     
     feature_engineering_config = FeatureEngineeringConfig()
     
-    model_trainer = ModelTrainer(feature_engineering_artifact=FeatureEngineeringArtifact(featured_train_data_path=feature_engineering_config.featured_train_data_file_path, featured_test_data_path=feature_engineering_config.featured_test_data_file_path, vectorizer_file_path=feature_engineering_config.vectorizer_file_path))
+    model_trainer = ModelTrainer(
+        feature_engineering_artifact=FeatureEngineeringArtifact(
+            featured_train_data_file_path=feature_engineering_config.featured_train_data_file_path, featured_test_data_file_path=feature_engineering_config.featured_test_data_file_path, vectorizer_file_path=feature_engineering_config.vectorizer_file_path
+            )
+        )
     
     model_trainer.initiate_model_training()
     

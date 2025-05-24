@@ -1,4 +1,5 @@
 import os
+from pyexpat import model
 from src.constants import *
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -50,4 +51,12 @@ class ModelTrainerConfig:
 class ModelEvaluationConfig:
     metrics_file_path = os.path.join(REPORTS_DIR, METRICS_FILE_NAME)
     experiment_info_file_path = os.path.join(REPORTS_DIR, EXPERIMENT_INFO_FILE_NAME)
+    models_dir =  os.path.join(MODELS_DIR)
+    model_stage: str = MODEL_STAGE
+    model_name: str = MODEL_NAME
     
+
+@dataclass
+class ModelPusherConfig:
+    model_blob_file_path: str = os.path.join(MODEL_BLOB_DIR, MODEL_BLOB_NAME)
+    container_name: str = BLOB_CONTAINER

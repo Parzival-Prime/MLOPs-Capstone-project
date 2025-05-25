@@ -1,12 +1,12 @@
 import os
 from datetime import datetime
 from from_root import from_root
-from dotenv import load_dotenv
 from pathlib import Path
 import logging
 
 ROOT_DIR = Path(from_root())
 
+from dotenv import load_dotenv
 env_file_path = os.path.join(ROOT_DIR, '.env')
 load_dotenv(env_file_path)
 
@@ -70,7 +70,10 @@ MODEL_OBJECT_FILE_NAME: str = 'model.pkl'
 REPORTS_DIR: str = 'reports'
 METRICS_FILE_NAME: str = 'metrics.json'
 EXPERIMENT_INFO_FILE_NAME: str = 'experiment_info.json'
-MODEL_STAGE: str = 'Staging'  # or 'Production', 'Development'
+if os.getenv('ENV') == 'Production':
+    MODEL_STAGE: str = 'Production'
+else:
+    MODEL_STAGE: str = 'Staging'
 MODEL_NAME: str = 'imdb_sentiment_model'
 MODELS_DIR: str = 'models'
 

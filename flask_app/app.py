@@ -94,7 +94,7 @@ REQUEST_LATENCY = Histogram(
 )
 
 PREDICTION_COUNT = Counter(
-    "model_prediction_count", "Count of predictions for each class", ["Prediction"], registry=registry
+    "model_prediction_count", "Count of predictions for each class", ["prediction"], registry=registry
 )
 
 

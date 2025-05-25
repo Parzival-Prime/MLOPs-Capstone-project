@@ -18,23 +18,23 @@ def promote_model():
     
     client = mlflow.MlflowClient()
     
-    staging_version = client.get_model_version_by_alias(name='imdb_sentiment_model3', alias='challenger')
+    staging_version = client.get_model_version_by_alias(name=model_name, alias='challenger')
     
     try:
-        production_version = client.get_model_version_by_alias(name='imdb_sentiment_model3', alias='alpha')
+        production_version = client.get_model_version_by_alias(name=model_name, alias='alpha')
     except RestException:
         print('There is no model in production currently!')
     else:
         client.set_registered_model_alias(
             name=model_name,
             version=production_version.version,
-            stage='veteran'
+            alias='veteran'
         )
     finally:
         client.set_registered_model_alias(
             name=model_name,
             version=staging_version.version,
-            stage='alpha'
+            alias='alpha'
         )
         
     print(f"Challenger Model promoted to Alpha")

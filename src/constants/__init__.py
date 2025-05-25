@@ -12,7 +12,6 @@ if os.getenv('ENV') != 'Production':
     load_dotenv(env_file_path)
 else:
     print('In production environment!')
-    print(f'BLOB_STORAGE_INSTANCE_NAME: {os.getenv('BLOB_STORAGE_INSTANCE_NAME')}')
     print(f'AZURE_TENANT_ID: {os.getenv('AZURE_TENANT_ID')}')
     print(f'AZURE_CLIENT_ID: {os.getenv('AZURE_CLIENT_ID')}')
     print(f'AZURE_CLIENT_SECRET: {os.getenv('AZURE_CLIENT_SECRET')}')
@@ -37,7 +36,6 @@ PARAMS_FILE_PATH: str = 'params.yaml'
 # Azure
 BLOB_CONTAINER = 'capstoneprojcunt'
 BLOB_STORAGE_REGION='eastasia'
-BLOB_STORAGE_INSTANCE_NAME=os.getenv('BLOB_STORAGE_INSTANCE_NAME')
 AZURE_TENANT_ID=os.getenv('AZURE_TENANT_ID')
 AZURE_CLIENT_ID=os.getenv('AZURE_CLIENT_ID')
 AZURE_CLIENT_SECRET=os.getenv('AZURE_CLIENT_SECRET')

@@ -19,16 +19,23 @@ class TestModelLoading(unittest.TestCase):
         mlflow.set_tracking_uri(f'https://{dagshub_username}:{dagshub_token}@dagshub.com/Parzival-Prime/MLOPs-Capstone-project.mlflow')
         
         # Load the new model from MLflow model registry
-        cls.new_model_name = 'imdb_sentiment_model'
-        cls.new_model_verion = cls.get_latest_model_version(cls.new_model_name)
-        cls.new_model_uri = f'models:/{cls.new_model_name}/{cls.new_model_verion}'
+        print('MLflow Connection Successful!')
+        print('Loading Model...')
+        cls.new_model_name = 'imdb_sentiment_model2'
+        cls.new_model_version = cls.get_latest_model_version(cls.new_model_name)
+        cls.new_model_uri = f'models:/{cls.new_model_name}/{cls.new_model_version}'
         cls.new_model = mlflow.pyfunc.load_model(cls.new_model_uri)
+        print('Model loaded!')
         
+        print('Loading vectorizer...')
         # load vectorizer
         cls.vectorizer = pickle.load(open('models/vectorizer.pkl', 'rb'))
+        print('Vectorizer loaded!')
         
+        print('Loading test data...')
         # load holdout test
         cls.holdout_data = pd.read_csv('artifact/feature/test.csv')
+        print('Test data loaded!')
         
     @staticmethod
     def get_latest_model_version(model_name, stage="Staging"):

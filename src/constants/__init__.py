@@ -70,11 +70,8 @@ MODEL_OBJECT_FILE_NAME: str = 'model.pkl'
 REPORTS_DIR: str = 'reports'
 METRICS_FILE_NAME: str = 'metrics.json'
 EXPERIMENT_INFO_FILE_NAME: str = 'experiment_info.json'
-if os.getenv('ENV') == 'Production':
-    MODEL_STAGE: str = 'Production'
-else:
-    MODEL_STAGE: str = 'Staging'
-MODEL_NAME: str = 'imdb_sentiment_model'
+MODEL_STAGE: str = 'Staging'
+MODEL_NAME: str = 'imdb_sentiment_model2'
 MODELS_DIR: str = 'models'
 
 # Model Pusher

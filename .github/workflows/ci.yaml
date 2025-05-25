@@ -4,6 +4,18 @@ on: push
 jobs:
   project-testing:
     runs-on: ubuntu-latest
+    env: 
+          ENV: ${{ secrets.ENV }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          SERVICE_PRINCIPLE_ID: ${{ secrets.SERVICE_PRINCIPLE_ID }}
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          AZURE_STORAGE_ACCOUNT_URL: ${{ secrets.AZURE_STORAGE_ACCOUNT_URL }}
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+          DAGSHUB_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_TOKEN }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
 
     steps:
       - name: checkout code
@@ -25,18 +37,15 @@ jobs:
         run: pip install -r requirements.txt
           
       - name: Set ENV variables and Run Pipeline through DVC
-        env: 
-          ENV: ${{ secrets.ENV }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          SERVICE_PRINCIPLE_ID: ${{ secrets.SERVICE_PRINCIPLE_ID }}
-          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
-          AZURE_STORAGE_ACCOUNT_URL: ${{ secrets.AZURE_STORAGE_ACCOUNT_URL }}
-          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
-          DAGSHUB_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
-          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_TOKEN }}
-          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: dvc repro
 
+      - name: Run model tests
+        run: python -m unittest tests/test_model.py
+
+      - name: Promote model to production
+        if: success()
+        run: python scripts/promote_model.py
       
+      - name: Run Flask app tests
+        if: success()
+        run: python -m unittest tests/test_flask_app.py

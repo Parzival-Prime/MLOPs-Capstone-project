@@ -71,10 +71,13 @@ def normalize_text(text):
     return text
 
 
+dagshub_username = os.getenv("DAGSHUB_USERNAME")
 dagshub_token = os.getenv("DAGSHUB_TOKEN")
-if not dagshub_token:
-    raise EnvironmentError("DAGSHUB_TOKEN environment variable is not set")
-mlflow.set_tracking_uri(f'https://dagshub.com/Parzival-Prime/MLOPs-Capstone-project.mlflow')
+
+assert dagshub_username is not None, "DAGSHUB_USERNAME not found in env"
+assert dagshub_token is not None, "DAGSHUB_TOKEN not found in env"
+
+mlflow.set_tracking_uri(f"https://{dagshub_username}:{dagshub_token}@dagshub.com/Parzival-Prime/MLOPs-Capstone-project.mlflow")
 
 
 

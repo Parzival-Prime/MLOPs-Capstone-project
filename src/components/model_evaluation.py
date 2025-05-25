@@ -19,13 +19,13 @@ from src.entity.artifact_entity import ModelTrainerArtifact, ModelEvaluationArti
 
 logger = logging.getLogger('Model Evaluation')
 
+dagshub_username = os.getenv("DAGSHUB_USERNAME")
 dagshub_token = os.getenv("DAGSHUB_TOKEN")
-logger.info(f'DAGSHUB_TOKEN: {dagshub_token}')
-if not dagshub_token:
-    raise EnvironmentError("DAGSHUB_TOKEN environment variable is not set")
 
-dagshub.init(repo_owner=DAGSHUB_REPO_OWNER, repo_name=DAGSHUB_REPO_NAME, mlflow=True)
-mlflow.set_tracking_uri(f'{DAGSHUB_URL}/{DAGSHUB_REPO_OWNER}/{DAGSHUB_REPO_NAME}.mlflow')
+assert dagshub_username is not None, "DAGSHUB_USERNAME not found in env"
+assert dagshub_token is not None, "DAGSHUB_TOKEN not found in env"
+
+mlflow.set_tracking_uri(f"https://{dagshub_username}:{dagshub_token}@dagshub.com/{DAGSHUB_REPO_OWNER}/{DAGSHUB_REPO_NAME}.mlflow")
 
 
 class ModelEvaluation:

@@ -82,7 +82,7 @@ dagshub_url = "https://dagshub.com"
 repo_owner = "Parzival-Prime"
 repo_name = "MLOPs-Capstone-project"
 # Set up MLflow tracking URI
-mlflow.set_tracking_uri(f'{dagshub_url}/{repo_owner}/{repo_name}.mlflow')
+mlflow.set_tracking_uri(f'https://dagshub.com/Parzival-Prime/MLOPs-Capstone-project.mlflow')
 
 
 

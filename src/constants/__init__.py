@@ -6,9 +6,10 @@ import logging
 
 ROOT_DIR = Path(from_root())
 
-from dotenv import load_dotenv
-env_file_path = os.path.join(ROOT_DIR, '.env')
-load_dotenv(env_file_path)
+if os.getenv('ENV') != 'Production':
+    from dotenv import load_dotenv
+    env_file_path = os.path.join(ROOT_DIR, '.env')
+    load_dotenv(env_file_path)
 
 # Logging
 LOG_DIR='logs'

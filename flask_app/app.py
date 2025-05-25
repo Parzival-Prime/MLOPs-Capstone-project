@@ -14,8 +14,9 @@ import re
 import dagshub
 
 
-from dotenv import load_dotenv
-load_dotenv('../.env')
+if os.getenv('ENV') != 'Production':
+    from dotenv import load_dotenv
+    load_dotenv('../.env')
 
 import warnings
 warnings.simplefilter('ignore', UserWarning)

@@ -99,19 +99,16 @@ PREDICTION_COUNT = Counter(
 
 
 
-model_name = 'imdb_sentiment_model'
-def get_latest_model_version(model_name):
-    client = mlflow.MlflowClient()
-    latest_version = client.get_latest_versions(model_name, stages=['Production'])
-    if not latest_version:
-        latest_version = client.get_latest_versions(model_name, stages=["None"])
-    return latest_version[0].version if latest_version else None
+model_name = 'imdb_sentiment_model3'
 
-model_version = get_latest_model_version(model_name)
-model_uri = f'models:/{model_name}/{model_version}'
+model_version = client = mlflow.MlflowClient()
+production_version = client.get_model_version_by_alias(name=model_name, alias='alpha')
+run_id = production_version.run_id
+model_uri = f'runs:/{run_id}/model'
 print(f'Fetching model from: {model_uri}')
 model = mlflow.pyfunc.load_model(model_uri)
-vectorizer = pickle.load(open('models/vectorizer.pkl', 'rb'))
+with open('models/vectorizer.pkl', 'rb') as file:
+    vectorizer = pickle.load(file)
 
 
 @app.route('/')

@@ -14,7 +14,7 @@ def promote_model():
 
     mlflow.set_tracking_uri(f"https://{dagshub_username}:{dagshub_token}@dagshub.com/Parzival-Prime/MLOPs-Capstone-project.mlflow")
 
-    model_name = 'imdb_sentiment_model'    
+    model_name = 'imdb_sentiment_model3'    
     
     client = mlflow.MlflowClient()
     

@@ -42,6 +42,9 @@ class CreateBlobServiceClient:
                     client_secret=__client_secret
                 )
                 
+                if not __credential:
+                    __credential = DefaultAzureCredential()
+                
                 CreateBlobServiceClient.blob_service_client = BlobServiceClient(account_url=__storage_account_url, credential=__credential)
                 
                 logger.info('Azure Connection Successful!')

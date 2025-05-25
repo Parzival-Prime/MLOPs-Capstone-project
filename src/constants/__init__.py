@@ -10,6 +10,14 @@ if os.getenv('ENV') != 'Production':
     from dotenv import load_dotenv
     env_file_path = os.path.join(ROOT_DIR, '.env')
     load_dotenv(env_file_path)
+else:
+    print('In production environment!')
+    print(f'BLOB_STORAGE_INSTANCE_NAME: {os.getenv('BLOB_STORAGE_INSTANCE_NAME')}')
+    print(f'AZURE_TENANT_ID: {os.getenv('AZURE_TENANT_ID')}')
+    print(f'AZURE_CLIENT_ID: {os.getenv('AZURE_CLIENT_ID')}')
+    print(f'AZURE_CLIENT_SECRET: {os.getenv('AZURE_CLIENT_SECRET')}')
+    print(f'AZURE_STORAGE_ACCOUNT_URL: {os.getenv('AZURE_STORAGE_ACCOUNT_URL')}')
+    print(f'SERVICE_PRINCIPLE_ID: {os.getenv('SERVICE_PRINCIPLE_ID')}')
 
 # Logging
 LOG_DIR='logs'

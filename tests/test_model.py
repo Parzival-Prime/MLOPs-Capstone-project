@@ -1,4 +1,3 @@
-from types import ClassMethodDescriptorType
 import unittest
 import mlflow
 import os
@@ -33,7 +32,7 @@ class TestModelLoading(unittest.TestCase):
         
     @staticmethod
     def get_latest_model_version(model_name, stage='Staging'):
-        client = mlflow.MlFlowClient()
+        client = mlflow.MlflowClient()
         latest_version = client.get_latest_versions(model_name, stage=[stage])
         return latest_version[0].version if latest_version else None
     

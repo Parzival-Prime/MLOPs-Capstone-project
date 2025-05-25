@@ -71,18 +71,9 @@ def normalize_text(text):
     return text
 
 
-# DagHub and Mlflow
-dagshub_token = os.getenv("CAPSTONE_TEST")
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
 if not dagshub_token:
-    raise EnvironmentError("CAPSTONE_TEST environment variable is not set")
-
-os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
-os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
-
-dagshub_url = "https://dagshub.com"
-repo_owner = "Parzival-Prime"
-repo_name = "MLOPs-Capstone-project"
-# Set up MLflow tracking URI
+    raise EnvironmentError("DAGSHUB_TOKEN environment variable is not set")
 mlflow.set_tracking_uri(f'https://dagshub.com/Parzival-Prime/MLOPs-Capstone-project.mlflow')
 
 

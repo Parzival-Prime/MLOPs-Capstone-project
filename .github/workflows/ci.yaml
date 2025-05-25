@@ -24,9 +24,8 @@ jobs:
       - name: Install Dependencies
         run: pip install -r requirements.txt
           
-      - name: Run Pipeline through DVC
+      - name: Set ENV variables and Run Pipeline through DVC
         env: 
-          CAPSTONE_TEST: ${{ secrets.CAPSTONE_TEST }}
           ENV: ${{ secrets.ENV }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}

@@ -19,12 +19,9 @@ from src.entity.artifact_entity import ModelTrainerArtifact, ModelEvaluationArti
 
 logger = logging.getLogger('Model Evaluation')
 
-dagshub_token = os.getenv("CAPSTONE_TEST")
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
 if not dagshub_token:
-    raise EnvironmentError("CAPSTONE_TEST environment variable is not set")
-
-os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
-os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+    raise EnvironmentError("DAGSHUB_TOKEN environment variable is not set")
 
 dagshub.init(repo_owner=DAGSHUB_REPO_OWNER, repo_name=DAGSHUB_REPO_NAME, mlflow=True)
 mlflow.set_tracking_uri(f'{DAGSHUB_URL}/{DAGSHUB_REPO_OWNER}/{DAGSHUB_REPO_NAME}.mlflow')

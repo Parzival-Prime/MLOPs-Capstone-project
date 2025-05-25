@@ -31,14 +31,14 @@ class DataIngestion:
             
             data = blob_storage_client.download_file(
                         file_blob_path=self.data_ingestion_config.blob_data_path,
-                        file_save_path=self.data_ingestion_config.raw_data_path,
+                        file_save_path=self.data_ingestion_config.raw_data_file_path,
                         container_name=BLOB_CONTAINER
                     )
             logger.debug('Got the data!')
-            logger.debug(f'Saving data in {os.path.relpath(path=self.data_ingestion_config.raw_data_path, start=ROOT_DIR)}')
-            os.makedirs(os.path.dirname(self.data_ingestion_config.raw_data_path), exist_ok=True)
+            logger.debug(f'Saving data in {os.path.relpath(path=self.data_ingestion_config.raw_data_file_path, start=ROOT_DIR)}')
+            os.makedirs(os.path.dirname(self.data_ingestion_config.raw_data_file_path), exist_ok=True)
             
-            with open(self.data_ingestion_config.raw_data_path, 'wb') as file:
+            with open(self.data_ingestion_config.raw_data_file_path, 'wb') as file:
                 file.write(data)
             
             logger.info('Data downloaded and saved!')
@@ -54,7 +54,7 @@ class DataIngestion:
             logger.info('Initiated Data Ingestion...')
             self.export_data_into_artifact()
             
-            data_ingestion_artifact = DataIngestionArtifact(raw_data_file_path=self.data_ingestion_config.raw_data_path)
+            data_ingestion_artifact = DataIngestionArtifact(raw_data_file_path=self.data_ingestion_config.raw_data_file_path)
             logger.info('Data Ingestion Completed!')
             
             return data_ingestion_artifact

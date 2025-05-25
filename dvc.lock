@@ -5,8 +5,8 @@ stages:
     deps:
     - path: src/components/data_ingestion.py
       hash: md5
-      md5: 48757786137cdb4af7538a16962bba9d
-      size: 2735
+      md5: 5b28de284f68c0cc5c9eab6e8e9032e1
+      size: 2760
     outs:
     - path: artifact/ingested_data/data.csv
       hash: md5
@@ -128,5 +128,5 @@ stages:
       size: 131
     - path: src/components/model_pusher.py
       hash: md5
-      md5: 9771c97d6b384c609bcee6a444ad2dd8
-      size: 2876
+      md5: 61701c5008e96fa58e923dd5c979e8d1
+      size: 2822

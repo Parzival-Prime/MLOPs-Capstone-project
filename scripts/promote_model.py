@@ -2,6 +2,7 @@
 
 import os
 import mlflow
+from mlflow.exceptions import RestException
 
 def promote_model():
 
@@ -17,24 +18,26 @@ def promote_model():
     
     client = mlflow.MlflowClient()
     
-    latest_version_staging = client.get_latest_versions(model_name, stages=['staging'])[0].version
+    staging_version = client.get_model_version_by_alias(name='imdb_sentiment_model3', alias='challenger')
     
-    prod_versions = client.get_latest_versions(model_name, stages=['Production'])
-    
-    for version in prod_versions:
-        client.transition_model_version_stage(
+    try:
+        production_version = client.get_model_version_by_alias(name='imdb_sentiment_model3', alias='alpha')
+    except RestException:
+        print('There is no model in production currently!')
+    else:
+        client.set_registered_model_alias(
             name=model_name,
-            version=version.version,
-            stage='Archived'
+            version=production_version.version,
+            stage='veteran'
         )
-    
-    client.transition_model_stage(
-        name=model_name,
-        version=latest_version_staging,
-        stage='Prdoduction'
-    )
-    
-    print(f"Model version {latest_version_staging} promoted to Production")
+    finally:
+        client.set_registered_model_alias(
+            name=model_name,
+            version=staging_version.version,
+            stage='alpha'
+        )
+        
+    print(f"Challenger Model promoted to Alpha")
 
 if __name__ == "__main__":
     promote_model()

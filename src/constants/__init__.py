@@ -70,9 +70,11 @@ MODEL_OBJECT_FILE_NAME: str = 'model.pkl'
 REPORTS_DIR: str = 'reports'
 METRICS_FILE_NAME: str = 'metrics.json'
 EXPERIMENT_INFO_FILE_NAME: str = 'experiment_info.json'
-MODEL_STAGE: str = 'Staging'
-MODEL_NAME: str = 'imdb_sentiment_model2'
+# MODEL_STAGE: str = 'Staging'
+MODEL_NAME: str = 'imdb_sentiment_model3'
 MODELS_DIR: str = 'models'
+MODEL_ALIAS: str = 'challenger'
+
 
 # Model Pusher
 MODEL_BLOB_NAME: str = 'model.pkl'

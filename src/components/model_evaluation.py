@@ -69,7 +69,7 @@ class ModelEvaluation:
             logger.error(f'Error occured during Evaluating Metrics: {e}')
             raise
         
-    def register_model(self, model_name: str, model_info: dict) -> None:
+    def register_model(self, model_name: str, alias: str, model_info: dict) -> None:
         """Register the model in MLflow."""
         try:
             logger.info(f'Registering model {model_name}...')
@@ -78,11 +78,18 @@ class ModelEvaluation:
             model_version = mlflow.register_model(model_uri=model_uri, name=model_name)
             
             client = mlflow.tracking.MlflowClient()
-            client.transition_model_version_stage(
+            # client.transition_model_version_stage(
+            #     name=model_name,
+            #     version=model_version.version,
+            #     stage=self.model_evaluation_config.model_stage
+            # )
+            
+            client.set_registered_model_alias(
                 name=model_name,
-                version=model_version.version,
-                stage=self.model_evaluation_config.model_stage
+                alias=alias,
+                version=model_version.version
             )
+            
             
             logger.info(f'Model {model_name} registered with version {model_version.version}.')
         except Exception as e:
@@ -127,7 +134,9 @@ class ModelEvaluation:
                 save_json(dictionary=model_info, file_path=self.model_evaluation_config.experiment_info_file_path)
                 
                 logger.debug('Registering model...')
-                self.register_model(model_name=self.model_evaluation_config.model_name, model_info=model_info)
+                self.register_model(model_name=self.model_evaluation_config.model_name, 
+                                    alias=self.model_evaluation_config.model_alias,
+                                    model_info=model_info)
                 logger.info(f'Model registered with name: {self.model_evaluation_config.model_name}')
                 
                 logger.debug('Logging Model Evaluation artifact...')

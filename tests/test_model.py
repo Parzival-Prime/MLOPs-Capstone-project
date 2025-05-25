@@ -1,6 +1,8 @@
 import unittest
 import mlflow
 import os
+import mlflow.tracing
+import mlflow.tracking
 import pandas as pd
 import pickle
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
@@ -17,19 +19,24 @@ class TestModelLoading(unittest.TestCase):
         assert dagshub_username is not None, "DAGSHUB_USERNAME env variable not found!"
         
         mlflow.set_tracking_uri(f'https://{dagshub_username}:{dagshub_token}@dagshub.com/Parzival-Prime/MLOPs-Capstone-project.mlflow')
+        mlflow.set_registry_uri(f'https://{dagshub_username}:{dagshub_token}@dagshub.com/Parzival-Prime/MLOPs-Capstone-project.mlflow')
         
         # Load the new model from MLflow model registry
         print('MLflow Connection Successful!')
         print('Loading Model...')
-        cls.new_model_name = 'imdb_sentiment_model2'
-        cls.new_model_version = cls.get_latest_model_version(cls.new_model_name)
-        cls.new_model_uri = f'models:/{cls.new_model_name}/{cls.new_model_version}'
-        cls.new_model = mlflow.pyfunc.load_model(cls.new_model_uri)
+        client = mlflow.tracking.MlflowClient()
+        staging_version = client.get_model_version_by_alias(name='imdb_sentiment_model3', alias='challenger')
+        staging_version.run_id
+        logged_model = f'runs:/{staging_version.run_id}/model'
+
+        # Load model as a PyFuncModel.
+        cls.new_model = mlflow.pyfunc.load_model(logged_model)
         print('Model loaded!')
         
         print('Loading vectorizer...')
         # load vectorizer
-        cls.vectorizer = pickle.load(open('models/vectorizer.pkl', 'rb'))
+        with open('models/vectorizer.pkl', 'rb') as file: 
+            cls.vectorizer = pickle.load(file)
         print('Vectorizer loaded!')
         
         print('Loading test data...')
@@ -37,11 +44,6 @@ class TestModelLoading(unittest.TestCase):
         cls.holdout_data = pd.read_csv('artifact/feature/test.csv')
         print('Test data loaded!')
         
-    @staticmethod
-    def get_latest_model_version(model_name, stage="Staging"):
-        client = mlflow.MlflowClient()
-        latest_version = client.get_latest_versions(model_name, stages=[stage])
-        return latest_version[0].version if latest_version else None
 
     def test_model_loaded_properly(self):
         self.assertIsNotNone(self.new_model)

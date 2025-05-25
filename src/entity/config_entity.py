@@ -52,8 +52,9 @@ class ModelEvaluationConfig:
     metrics_file_path = os.path.join(REPORTS_DIR, METRICS_FILE_NAME)
     experiment_info_file_path = os.path.join(REPORTS_DIR, EXPERIMENT_INFO_FILE_NAME)
     models_dir =  os.path.join(MODELS_DIR)
-    model_stage: str = MODEL_STAGE
+    # model_stage: str = MODEL_STAGE
     model_name: str = MODEL_NAME
+    model_alias: str = MODEL_ALIAS
     
 
 @dataclass

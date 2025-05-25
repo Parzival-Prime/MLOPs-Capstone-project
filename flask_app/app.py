@@ -5,7 +5,7 @@ import pickle
 import pandas as pd
 import numpy as np
 import mlflow
-from prometheus_client import Counter, Histogram, generate_latest, CollectorResgistry, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, Histogram, generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST
 import time
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
@@ -83,7 +83,7 @@ mlflow.set_tracking_uri(f"https://{dagshub_username}:{dagshub_token}@dagshub.com
 
 app = Flask(__name__)
 
-registry = CollectorResgistry()
+registry = CollectorRegistry()
 
 REQUEST_COUNT = Counter(
     "app_request_count", "Total number of requests to the app", ["method", "endpoint"], registry=registry

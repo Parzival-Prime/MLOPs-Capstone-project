@@ -5,6 +5,7 @@ import string
 from prometheus_client import Counter, Histogram, generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST
 import time
 import spacy
+nlp = spacy.load("en_core_web_sm")
 
 app = Flask(__name__)
 

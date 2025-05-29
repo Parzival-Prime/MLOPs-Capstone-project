@@ -1,85 +1,10 @@
-from http import client
 from flask import Flask, render_template, request
-import os
 import pickle
-import pandas as pd
-import numpy as np
-import mlflow
+import re
+import string
 from prometheus_client import Counter, Histogram, generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST
 import time
-from nltk.stem import WordNetLemmatizer
-from nltk.corpus import stopwords
-import string
-import re
-import dagshub
-
-
-if os.getenv('ENV') != 'Production':
-    from dotenv import load_dotenv
-    load_dotenv('../.env')
-
-import warnings
-warnings.simplefilter('ignore', UserWarning)
-warnings.filterwarnings('ignore')
-
-
-def lemmatization(text):
-    """Lemmatize the text."""
-    lemmatizer = WordNetLemmatizer()
-    text = text.split()
-    text = [lemmatizer.lemmatize(word) for word in text]
-    return ' '.join(text)
-
-def remove_stopwords(text):
-    """Removes stopwords from the text."""
-    stop_words = set(stopwords.words('english'))
-    text = [word for word in text.split() if word not in stop_words]
-    return ' '.join(text)
-
-def remove_numbers(text):
-    """Remove number from the text."""
-    return ''.join([char for char in text if not char.isdigit()])
-    
-
-def lower_case(text):
-    """Convert text to lower case"""
-    return ' '.join([word.lower() for word in text.split()])
-    
-
-def remove_punctuations(text):
-    """Remove punctuations from the text."""
-    return text.translate(str.maketrans('', '', string.punctuation))
-
-def remove_urls(text):
-    """Remove Urls from text"""
-    url_pattern = re.compile(r'https?://\S+|www\.\S+')
-    return url_pattern.sub(r'', text)
-
-def remove_small_sentences(df):
-    """Remove sentences with less than 3 words"""
-    for i in range(len(df)):
-        if len(df.text.iloc[i].split()) < 3:
-            df.text.iloc[i] = np.nan
-            
-def normalize_text(text):
-    text = lower_case(text)
-    text = remove_stopwords(text)
-    text = remove_numbers(text)
-    text = remove_punctuations(text)
-    text = remove_urls(text)
-    text = lemmatization(text)
-    return text
-
-
-dagshub_username = os.getenv("DAGSHUB_USERNAME")
-dagshub_token = os.getenv("DAGSHUB_TOKEN")
-
-assert dagshub_username is not None, "DAGSHUB_USERNAME not found in env"
-assert dagshub_token is not None, "DAGSHUB_TOKEN not found in env"
-
-mlflow.set_tracking_uri(f"https://{dagshub_username}:{dagshub_token}@dagshub.com/Parzival-Prime/MLOPs-Capstone-project.mlflow")
-
-
+import spacy
 
 app = Flask(__name__)
 
@@ -96,19 +21,38 @@ REQUEST_LATENCY = Histogram(
 PREDICTION_COUNT = Counter(
     "model_prediction_count", "Count of predictions for each class", ["prediction"], registry=registry
 )
-
-
-
-model_name = 'imdb_sentiment_model3'
-
-model_version = client = mlflow.MlflowClient()
-production_version = client.get_model_version_by_alias(name=model_name, alias='alpha')
-run_id = production_version.run_id
-model_uri = f'runs:/{run_id}/model'
-print(f'Fetching model from: {model_uri}')
-model = mlflow.pyfunc.load_model(model_uri)
+    
+with open('models/model.pkl', 'rb') as file:
+    model = pickle.load(file)
+    
 with open('models/vectorizer.pkl', 'rb') as file:
     vectorizer = pickle.load(file)
+    
+with open('models/stopwords.pkl', 'rb') as file:
+    stopwords = pickle.load(file)
+    
+def preprocess_text(text):
+    """Helper function to preprocess a single text string."""
+    text = re.sub(r'https?://\S+|www\.\S+', '', text)
+    text = re.sub(r'\d+', '', text)
+    text = text.lower()
+    text = re.sub(rf"[{re.escape(string.punctuation)}]", ' ', text)
+    text = text.replace('؛', "")
+    text = re.sub(r'\s+', ' ', text).strip()
+    text = ' '.join([word for word in text.split() if word not in stopwords])
+    text = ' '.join([token.lemma_ for token in nlp(text)])
+    
+    return text
+    
+def inference_preprocess(text):
+    text = preprocess_text(text)
+    features = vectorizer.transform([text])
+    features_array = features.toarray()
+    assert features_array.shape[1] == 20, f"Expected 20 features, got {features_array.shape[1]}"
+    return features_array
+
+
+
 
 
 @app.route('/')
@@ -125,10 +69,7 @@ def predict():
     REQUEST_COUNT.labels(method='POST', endpoint='/predict').inc()
     start_time = time.time()
     text = request.form['text']
-    text = normalize_text(text)
-    features = vectorizer.transform([text])
-    features_df = pd.DataFrame(features.toarray(), columns=[str(i) for i in range(features.shape[1])])
-    
+    features_df = inference_preprocess(text)
     result = model.predict(features_df)
     prediction = result[0]
     
@@ -145,5 +86,5 @@ def metrics():
     return generate_latest(registry), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
 
-if __name__=='__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+if __name__=="__main__":
+    app.run(host='0.0.0.0', port=5000)

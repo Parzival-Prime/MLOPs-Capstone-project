@@ -21,8 +21,8 @@ stages:
       size: 669108
     - path: src/components/data_transformation.py
       hash: md5
-      md5: 2eb05e995581154c0deb8ba6fc4284bf
-      size: 6477
+      md5: 78a7f660e3c481edc7224d9f7ff1e5e3
+      size: 6737
     params:
       params.yaml:
         data_transformation.test_size: 0.2
@@ -35,6 +35,10 @@ stages:
       hash: md5
       md5: f5bf0f13435e7e9777e9fb66ceb6f759
       size: 336668
+    - path: models/preprocess_pipeline.pkl
+      hash: md5
+      md5: ab9cba793574d6203fcff8b14de9f965
+      size: 378
   feature_engineering:
     cmd: python src/components/feature_engineering.py
     deps:

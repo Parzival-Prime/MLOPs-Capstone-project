@@ -1,4 +1,5 @@
 import os
+import pickle
 
 import numpy as np
 from pandas import DataFrame, read_csv
@@ -8,6 +9,8 @@ import string
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import FunctionTransformer
 
 nltk.download('stopwords')
 nltk.download('wordnet')
@@ -18,6 +21,33 @@ from src.entity.config_entity import DataTransformationConfig, DataIngestionConf
 from src.entity.artifact_entity import DataTransformationArtifact, DataIngestionArtifact
 
 logger = logging.getLogger('Data Transformation')
+
+
+lemmatizer = WordNetLemmatizer()
+stop_words = set(stopwords.words("english"))
+
+with open('models/stopwords.pkl', 'wb') as file:
+    pickle.dump(stop_words, file)
+
+def preprocess_text(text):
+    """Helper function to preprocess a single text string."""
+    text = re.sub(r'https?://\S+|www\.\S+', '', text)
+    text = re.sub(r'\d+', '', text)
+    text = text.lower()
+    text = re.sub(rf"[{re.escape(string.punctuation)}]", ' ', text)
+    text = text.replace('؛', "")
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    words = text.split()
+    words = [word for word in words if word not in stop_words]
+    words = [lemmatizer.lemmatize(word) for word in words]
+    
+    return ' '.join(words)
+
+def apply_preprocessing(series):
+    return series.apply(preprocess_text)
+
+preprocess_pipeline = Pipeline([('preprocess', FunctionTransformer(apply_preprocessing, validate=False))])
 
 
 class DataTransformation:
@@ -61,33 +91,8 @@ class DataTransformation:
         """
         try:
             logger.info('Transforming text...')
-            lemmatizer = WordNetLemmatizer()
-            stop_words = set(stopwords.words("english"))
-            
-            def preprocess_text(text):
-                """Helper functon to preprocess a single text string."""
-                
-                # Remove URLs
-                text = re.sub(r'https?://\S+|www\.\S+', '', text)
-                
-                # Remove Numbers
-                text = re.sub(r'\d+', '', text)
-                
-                # conver to lowercase
-                text = text.lower()
-                
-                # remove punctuations
-                text = re.sub(rf"[{re.escape(string.punctuation)}]", ' ', text)
-                text = text.replace('؛', "")
-                text = re.sub(r'\s+', ' ', text).strip()
-                
-                words = text.split()
-                words = [word for word in words if word not in stop_words]
-                words = [lemmatizer.lemmatize(word) for word in words]
-                text = ' '.join(words)
-                return text
-            
-            dataframe[col] = dataframe[col].apply(preprocess_text)
+                            
+            dataframe[col] = preprocess_pipeline.transform(dataframe[col])
             
             dataframe = dataframe.dropna(subset=[col])
             

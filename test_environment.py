@@ -23,3 +23,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+# /usr/local/lib/python3.12/site-packages

@@ -16,6 +16,7 @@ stages:
     outs:
       - artifact/transformed_data/train.csv
       - artifact/transformed_data/test.csv
+      - models/stopwords.pkl
   
   feature_engineering:
     cmd: python src/components/feature_engineering.py

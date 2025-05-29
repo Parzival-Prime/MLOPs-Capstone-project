@@ -1,8 +1,10 @@
-name: Continuous-Integration
+name: Capstone-Project
 
-on: push
+on: 
+  push:
+    branches: ["main"]
 jobs:
-  project-testing:
+  Continuous-Integration:
     runs-on: ubuntu-latest
     env: 
           ENV: ${{ secrets.ENV }}
@@ -49,3 +51,22 @@ jobs:
       - name: Run Flask app tests
         if: success()
         run: python -m unittest tests/test_flask_app.py
+      
+      - name: Build docker image
+        run: docker build -t capstoneApp:latest .
+
+  Continuous-Deployment:
+    runs-on: ubuntu-latest
+
+    env:
+      ACR_NAME: ${{ secrets.ACR_NAME }}
+      IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+    
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # - name: Login to Azure
+      
+

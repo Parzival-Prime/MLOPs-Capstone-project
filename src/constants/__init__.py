@@ -22,7 +22,7 @@ LOG_LEVEL= logging.DEBUG if os.getenv('ENV')=='dev' else logging.INFO
 
 
 # Miscellaneous
-DATA_FILE_NAME: str = ' IMDB.csv' # IMDB.csv  data.csv
+DATA_FILE_NAME: str = 'IMDB.csv' # IMDB.csv  data.csv
 PARAMS_FILE_PATH: str = 'params.yaml'
 
 

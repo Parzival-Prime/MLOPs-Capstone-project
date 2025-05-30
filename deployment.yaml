@@ -15,6 +15,7 @@ spec:
       containers:
       - name: capstone-app-container
         image: docker.io/parzivalprime/capstone-app:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         resources:
@@ -30,9 +31,10 @@ kind: Service
 metadata:
   name: capstone-app-service
 spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
-    targetPort: 5000
   selector:
     app: capstone-app
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 5000

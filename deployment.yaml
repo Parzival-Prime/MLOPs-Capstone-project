@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capstone-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: capstone-app
+  template:
+    metadata:
+      labels:
+        app: capstone-app
+    spec:
+      containers:
+      - name: capstone-app-container
+        image: docker.io/parzivalprime/capstone-app:latest
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: capstone-app-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 5000
+  selector:
+    app: capstone-app

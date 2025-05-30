@@ -70,18 +70,32 @@ jobs:
           docker push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$IMAGE_TAG  
           echo "image=$DOCKER_REGISTRY/$DOCKER_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-  # Continuous-Deployment:
-  #   runs-on: ubuntu-latest
+  Continuous-Deployment:
+    needs: Continuous-Integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #   env:
-  #     ACR_NAME: ${{ secrets.ACR_NAME }}
-  #     IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
-    
-  #   steps:
-
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-      # - name: Login to Azure
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          cluster-name: ${{ secrets.CLUSTER_NAME }}
+          resource-group: ${{ secrets.RESOURCE_GROUP }}
+      
+      - name: Set Up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
 
+      - name: Apply Kubernetes Manifests
+        run: kubectl apply -f deployment.yaml
+        
+      - name: Deploy to AKS
+        run: |
+          kubectl set image deployment/capstone-app capstone-app-container=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:${{ secrets.IMAGE_TAG }}

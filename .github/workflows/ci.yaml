@@ -85,6 +85,7 @@ jobs:
         with:
           cluster-name: ${{ secrets.CLUSTER_NAME }}
           resource-group: ${{ secrets.RESOURCE_GROUP }}
+          admin: true
       
       - name: Set Up kubectl
         uses: azure/setup-kubectl@v3
